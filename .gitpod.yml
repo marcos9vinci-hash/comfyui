@@ -1,49 +1,33 @@
-# Configuração Corrigida para ComfyUI no Gitpod
+# Configuração para ComfyUI no Gitpod
 tasks:
   - name: Setup ComfyUI
     init: |
       # Instala dependências do sistema
       sudo apt-get update && sudo apt-get install -y git-lfs python3-venv
       git lfs install
+
       # Cria e ativa ambiente virtual
       python3 -m venv venv
       source venv/bin/activate
       pip install --upgrade pip
-      # Instala PyTorch com a versão exata
+
+      # Clona o ComfyUI diretamente para o workspace do Gitpod
+      # NOTA: O ComfyUI será baixado para /workspace/comfyui/ComfyUI/
+      git clone https://github.com/comfyanonymous/ComfyUI.git /workspace/comfyui/ComfyUI
+
+      # Entra na pasta clonada e instala as dependências
+      cd /workspace/comfyui/ComfyUI
+      pip install -r requirements.txt
+      # Instala PyTorch com a versão exata, para evitar conflitos
       pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121
-
-      # Determina o diretório base do ComfyUI
-      COMFYUI_DIR=""
-      if [ -d "ComfyUI_windows_portable/ComfyUI" ]; then
-        COMFYUI_DIR="ComfyUI_windows_portable/ComfyUI"
-        echo "Detectado ComfyUI em ComfyUI_windows_portable/ComfyUI."
-      elif [ -d "ComfyUI" ]; then
-        COMFYUI_DIR="ComfyUI"
-        echo "Detectado ComfyUI na raiz do repositório."
-      else
-        echo "ERRO CRÍTICO: Pasta 'ComfyUI' ou 'ComfyUI_windows_portable/ComfyUI' não encontrada. Verifique a estrutura do seu repositório."
-        exit 1
-      fi
-
-      # Entra na pasta do ComfyUI para instalar os requisitos
-      if [ -n "$COMFYUI_DIR" ]; then
-        cd "$COMFYUI_DIR"
-        pip install -r requirements.txt
-        pip install xformers accelerate transformers diffusers
-        cd - # Volta para o diretório anterior (raiz do workspace)
-      fi
+      pip install xformers accelerate transformers diffusers
+      cd /workspace/comfyui/ # Volta para a raiz do workspace
 
     command: |
       source venv/bin/activate
-      # Usa a variável COMFYUI_DIR para navegar e iniciar o ComfyUI
-      if [ -n "$COMFYUI_DIR" ]; then
-        echo "Iniciando ComfyUI de $COMFYUI_DIR"
-        cd "$COMFYUI_DIR"
-        python3 main.py --listen --port 8188
-      else
-        echo "ERRO CRÍTICO: Não foi possível determinar o diretório do ComfyUI para iniciar."
-        exit 1
-      fi
+      # Inicia o ComfyUI da pasta clonada
+      cd /workspace/comfyui/ComfyUI
+      python3 main.py --listen --port 8188
 
 ports:
   - port: 8188

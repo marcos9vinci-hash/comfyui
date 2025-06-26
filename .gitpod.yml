@@ -2,16 +2,27 @@
 tasks:
   - name: Setup ComfyUI
     init: |
+      # Atualiza apt e instala git-lfs para download de modelos
+      sudo apt-get update && sudo apt-get install -y git-lfs
+      git lfs install
+      # Cria e ativa ambiente virtual
       python3 -m venv venv
       source venv/bin/activate
       pip install --upgrade pip
-      pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121 # ou cu118 dependendo do driver da gpu do gitpod
-      pip install -r requirements.txt
+      # Instala PyTorch especificando a versão exata para evitar conflitos
+      pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121
+      # Instala dependências do ComfyUI
+      pip install -r ComfyUI/requirements.txt # Caminho corrigido!
       pip install xformers accelerate transformers diffusers
-      # Adicione mais instalações de custom nodes se precisar, ex:
-      # pip install git+https://github.com/your/custom_node_repo.git
+      # Baixa modelos de exemplo (opcional, pode ser removido se não quiser)
+      # wget -c https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors -O ComfyUI/models/checkpoints/v1-5-pruned-emaonly.safetensors
+      # wget -c https://huggingface.co/stabilityai/sd-vae-ft-mse-original/resolve/main/vae-ft-mse-840000-ema-pruned.safetensors -O ComfyUI/models/vae/vae-ft-mse-840000-ema-pruned.safetensors
+      # wget -c https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors -O ComfyUI/models/checkpoints/sd_xl_base_1.0.safetensors
+
     command: |
       source venv/bin/activate
+      # Entra na pasta principal do ComfyUI para executar
+      cd ComfyUI
       python3 main.py --listen --port 8188
 
 ports:

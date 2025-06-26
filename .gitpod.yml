@@ -14,12 +14,12 @@ tasks:
       # Clona o ComfyUI diretamente para o workspace do Gitpod
       # NOTA: O ComfyUI será baixado para /workspace/comfyui/ComfyUI/
       git clone https://github.com/comfyanonymous/ComfyUI.git /workspace/comfyui/ComfyUI
-
+      
       # Entra na pasta clonada e instala as dependências
       cd /workspace/comfyui/ComfyUI
       pip install -r requirements.txt
-      # Instala PyTorch com a versão exata, para evitar conflitos
-      pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121
+      # Instala PyTorch com a versão exata e força a reinstalação para garantir compatibilidade
+      pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121 --force-reinstall
       pip install xformers accelerate transformers diffusers
       cd /workspace/comfyui/ # Volta para a raiz do workspace
 

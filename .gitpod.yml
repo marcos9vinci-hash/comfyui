@@ -2,38 +2,39 @@
 tasks:
   - name: Setup ComfyUI
     init: |
-      # Instala dependências do sistema
+      # Atualiza apt e instala git-lfs para download de modelos, e python3-venv
       sudo apt-get update && sudo apt-get install -y git-lfs python3-venv
       git lfs install
       # Cria e ativa ambiente virtual
       python3 -m venv venv
       source venv/bin/activate
       pip install --upgrade pip
-      # Instala PyTorch com uma versão compatível
+      # Instala PyTorch com a versão exata que ComfyUI geralmente espera no ambiente GPU
       pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121
-      # Verifica se a pasta ComfyUI existe e instala as dependências de dentro dela
-      if [ -d "ComfyUI_windows_portable/ComfyUI" ]; then
-        echo "Detectado ComfyUI_windows_portable/ComfyUI"
-        pip install -r ComfyUI_windows_portable/ComfyUI/requirements.txt
-      elif [ -d "ComfyUI" ]; then
-        echo "Detectado ComfyUI"
+      # Verifica se a pasta ComfyUI ou ComfyUI_windows_portable/ComfyUI existe e instala as dependências
+      if [ -d "ComfyUI" ]; then
+        echo "Detectado ComfyUI na raiz do repositório."
         pip install -r ComfyUI/requirements.txt
+      elif [ -d "ComfyUI_windows_portable/ComfyUI" ]; then
+        echo "Detectado ComfyUI em ComfyUI_windows_portable/ComfyUI."
+        pip install -r ComfyUI_windows_portable/ComfyUI/requirements.txt
       else
-        echo "Erro: Nenhuma pasta ComfyUI ou ComfyUI_windows_portable/ComfyUI encontrada."
+        echo "ERRO CRÍTICO: Pasta 'ComfyUI' não encontrada na raiz nem em 'ComfyUI_windows_portable'. Verifique a estrutura do seu repositório."
         exit 1
       fi
       pip install xformers accelerate transformers diffusers
+
     command: |
       source venv/bin/activate
-      # Tenta entrar na pasta ComfyUI_windows_portable/ComfyUI
-      if [ -d "ComfyUI_windows_portable/ComfyUI" ]; then
-        echo "Executando ComfyUI de ComfyUI_windows_portable/ComfyUI"
-        cd ComfyUI_windows_portable/ComfyUI
-      elif [ -d "ComfyUI" ]; then
-        echo "Executando ComfyUI de ComfyUI"
+      # Tenta entrar na pasta ComfyUI ou ComfyUI_windows_portable/ComfyUI para executar o main.py
+      if [ -d "ComfyUI" ]; then
+        echo "Entrando em ComfyUI e iniciando..."
         cd ComfyUI
+      elif [ -d "ComfyUI_windows_portable/ComfyUI" ]; then
+        echo "Entrando em ComfyUI_windows_portable/ComfyUI e iniciando..."
+        cd ComfyUI_windows_portable/ComfyUI
       else
-        echo "Erro: Não foi possível encontrar o diretório para iniciar o ComfyUI."
+        echo "ERRO CRÍTICO: Não foi possível encontrar o diretório para iniciar o ComfyUI. Verifique a estrutura do seu repositório."
         exit 1
       fi
       python3 main.py --listen --port 8188

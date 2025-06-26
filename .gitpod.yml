@@ -1,4 +1,4 @@
-# Configuração para ComfyUI no Gitpod
+# Configuração Simplificada para ComfyUI no Gitpod
 tasks:
   - name: Setup ComfyUI
     init: |
@@ -9,39 +9,15 @@ tasks:
       python3 -m venv venv
       source venv/bin/activate
       pip install --upgrade pip
-      # Instala PyTorch com a versão exata que ComfyUI geralmente espera
+      # Instala PyTorch com a versão exata
       pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121
-
-      # Navega para a pasta correta e instala as dependências do ComfyUI
-      if [ -d "ComfyUI_windows_portable/ComfyUI" ]; then
-        echo "Entrando em ComfyUI_windows_portable/ComfyUI para instalar requisitos..."
-        cd ComfyUI_windows_portable/ComfyUI
-        pip install -r requirements.txt
-        cd ../../ # Volta para a raiz do workspace
-      elif [ -d "ComfyUI" ]; then
-        echo "Entrando em ComfyUI para instalar requisitos..."
-        cd ComfyUI
-        pip install -r requirements.txt
-        cd .. # Volta para a raiz do workspace
-      else
-        echo "ERRO CRÍTICO: Pasta 'ComfyUI' ou 'ComfyUI_windows_portable/ComfyUI' não encontrada. Verifique a estrutura do seu repositório."
-        exit 1
-      fi
+      # Instala as dependências do ComfyUI diretamente da raiz do repositório
+      pip install -r requirements.txt
       pip install xformers accelerate transformers diffusers
 
     command: |
       source venv/bin/activate
-      # Tenta iniciar o ComfyUI da pasta correta
-      if [ -d "ComfyUI_windows_portable/ComfyUI" ]; then
-        echo "Executando ComfyUI de ComfyUI_windows_portable/ComfyUI"
-        cd ComfyUI_windows_portable/ComfyUI
-      elif [ -d "ComfyUI" ]; then
-        echo "Executando ComfyUI de ComfyUI"
-        cd ComfyUI
-      else
-        echo "ERRO CRÍTICO: Não foi possível encontrar o diretório para iniciar o ComfyUI. Por favor, verifique a estrutura do seu repositório Git."
-        exit 1
-      fi
+      # Inicia o ComfyUI diretamente da raiz do repositório
       python3 main.py --listen --port 8188
 
 ports:

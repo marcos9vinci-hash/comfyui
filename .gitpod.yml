@@ -1,0 +1,21 @@
+# Esta configuração garante que o ComfyUI seja iniciado no Gitpod
+tasks:
+  - name: Setup ComfyUI
+    init: |
+      python3 -m venv venv
+      source venv/bin/activate
+      pip install --upgrade pip
+      pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121 # ou cu118 dependendo do driver da gpu do gitpod
+      pip install -r requirements.txt
+      pip install xformers accelerate transformers diffusers
+      # Adicione mais instalações de custom nodes se precisar, ex:
+      # pip install git+https://github.com/your/custom_node_repo.git
+    command: |
+      source venv/bin/activate
+      python3 main.py --listen --port 8188
+
+ports:
+  - port: 8188
+    onOpen: open-browser # Abre o navegador automaticamente na porta do ComfyUI
+  - port: 6006 # Para TensorBoard, se for usar
+    onOpen: ignore

@@ -1,4 +1,4 @@
-# Configuração Simplificada para ComfyUI no Gitpod
+# Configuração Corrigida para ComfyUI no Gitpod
 tasks:
   - name: Setup ComfyUI
     init: |
@@ -11,14 +11,39 @@ tasks:
       pip install --upgrade pip
       # Instala PyTorch com a versão exata
       pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121
-      # Instala as dependências do ComfyUI diretamente da raiz do repositório
-      pip install -r requirements.txt
-      pip install xformers accelerate transformers diffusers
+
+      # Determina o diretório base do ComfyUI
+      COMFYUI_DIR=""
+      if [ -d "ComfyUI_windows_portable/ComfyUI" ]; then
+        COMFYUI_DIR="ComfyUI_windows_portable/ComfyUI"
+        echo "Detectado ComfyUI em ComfyUI_windows_portable/ComfyUI."
+      elif [ -d "ComfyUI" ]; then
+        COMFYUI_DIR="ComfyUI"
+        echo "Detectado ComfyUI na raiz do repositório."
+      else
+        echo "ERRO CRÍTICO: Pasta 'ComfyUI' ou 'ComfyUI_windows_portable/ComfyUI' não encontrada. Verifique a estrutura do seu repositório."
+        exit 1
+      fi
+
+      # Entra na pasta do ComfyUI para instalar os requisitos
+      if [ -n "$COMFYUI_DIR" ]; then
+        cd "$COMFYUI_DIR"
+        pip install -r requirements.txt
+        pip install xformers accelerate transformers diffusers
+        cd - # Volta para o diretório anterior (raiz do workspace)
+      fi
 
     command: |
       source venv/bin/activate
-      # Inicia o ComfyUI diretamente da raiz do repositório
-      python3 main.py --listen --port 8188
+      # Usa a variável COMFYUI_DIR para navegar e iniciar o ComfyUI
+      if [ -n "$COMFYUI_DIR" ]; then
+        echo "Iniciando ComfyUI de $COMFYUI_DIR"
+        cd "$COMFYUI_DIR"
+        python3 main.py --listen --port 8188
+      else
+        echo "ERRO CRÍTICO: Não foi possível determinar o diretório do ComfyUI para iniciar."
+        exit 1
+      fi
 
 ports:
   - port: 8188
